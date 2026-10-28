@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SME Bank - GL TFRS9 Automation Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .title-group h1 {
+            font-size: 22px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .badge-env {
+            font-size: 12px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .badge-env.clickable {
+            cursor: pointer;
+        }
+
+        .badge-env.clickable:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.2);
+        }
+
+        .badge-env.disconnected {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .badge-env.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        select, input[type="text"], input[type="password"], input[type="number"] {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .switch-desc {
+            flex: 1;
+        }
+
+        .switch-desc .switch-title {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .switch-desc .switch-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            line-height: 1.4;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Stepper Pipeline */
+        .stepper {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stepper {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .step-node {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .step-node.active, .step-node.running {
+            border-color: var(--primary);
+            box-shadow: 0 0 16px var(--primary-glow);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .step-node.success {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .step-node.error {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .step-node.waiting {
+            border-color: var(--warning);
+            background: rgba(245, 158, 11, 0.08);
+            animation: pulse-warn 1.5s infinite;
+        }
+
+        @keyframes pulse-warn {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+
+        .step-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .step-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .step-program {
+            font-size: 9.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .step-badge {
+            display: inline-block;
+            font-size: 8.5px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .badge-pending { background: #334155; color: #cbd5e1; }
+        .badge-running { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-error { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-waiting { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-skipped { background: transparent; color: #64748b; border: 1px dashed #475569; }
+        .step-node.skipped { opacity: 0.45; }
+        .badge-stopped { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .step-node.stopped { border-color: var(--warning); }
+
+        .row { display: flex; gap: 8px; }
+        .row > * { flex: 1; }
+        .btn-small { width: auto; flex: none; padding: 7px 12px; font-size: 13px; background: #334155; color: var(--text-main); border-radius: 6px; }
+        .btn-small:hover { background: #475569; }
+        .file-list { max-height: 270px; overflow-y: auto; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; }
+        .file-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; border-bottom: 1px solid #1e293b; cursor: pointer; font-size: 13px; }
+        .file-row:hover { background: #1e293b; }
+        .file-row input { margin-top: 3px; }
+        .file-row .sub { font-size: 11px; color: var(--text-muted); }
+        .file-row .warn { color: var(--warning); }
+        .file-row.disabled { opacity: 0.45; cursor: not-allowed; }
+        .list-tools { display: flex; gap: 8px; align-items: center; margin-top: 8px; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+        .list-tools .btn-small { padding: 5px 10px; font-size: 12px; }
+        .list-tools span { margin-left: auto; }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #334155;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            transition: width 0.4s ease;
+        }
+
+        /* Metric Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .metric-card {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .metric-val {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-top: 4px;
+        }
+
+        /* Terminal Console */
+        .terminal {
+            background: #090d16;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 14px;
+            height: 330px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 6px;
+        }
+
+        .pause-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .pause-box.show {
+            display: block;
+        }
+
+        .pause-box h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--warning);
+            margin-bottom: 6px;
+        }
+
+        .pause-box p {
+            font-size: 13px;
+            color: #fed7aa;
+            margin-bottom: 12px;
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .modal-close:hover {
+            color: white;
+            background: #334155;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .alert-box {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            margin-top: 10px;
+            margin-bottom: 12px;
+            display: none;
+            line-height: 1.5;
+        }
+
+        .alert-box.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--success);
+            color: #34d399;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--danger);
+            color: #f87171;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid var(--primary);
+            color: #93c5fd;
+        }
+
+        .modal-footer {
+            margin-top: 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="title-group">
+                <h1>⚡ SME Bank - GL TFRS9 Automation Engine</h1>
+            </div>
+            <div class="header-actions">
+                <span class="badge-env clickable" id="badge-db" onclick="openConnectModal('tab-db')" title="คลิกเพื่อตั้งค่า DB">
+                    <span id="dot-db">●</span> <span id="text-db">DB: เชื่อมต่อ...</span>
+                </span>
+                <span class="badge-env clickable" id="badge-sftp" onclick="openConnectModal('tab-sftp')" title="คลิกเพื่อตั้งค่า SFTP">
+                    <span id="dot-sftp">●</span> <span id="text-sftp">SFTP: เชื่อมต่อ...</span>
+                </span>
+                <span class="badge-env clickable" id="badge-ebs" onclick="openConnectModal('tab-ebs')" title="คลิกเพื่อตั้งค่า EBS">
+                    <span>👤</span> <span id="text-ebs">EBS User: MERCURY</span>
+                </span>
+                <button class="btn btn-small" onclick="openConnectModal()" style="background: var(--primary); color: white; border-radius: 999px; padding: 6px 14px; font-weight: 500;">
+                    🔌 ตั้งค่าการเชื่อมต่อ
+                </button>
+            </div>
+        </header>
+
+        <!-- Stepper Pipeline -->
+        <div class="stepper">
+            <div class="step-node" id="node-step0">
+                <div class="step-icon">📤</div>
+                <div class="step-title">0. SFTP Upload</div>
+                <div class="step-program">Pre-check & Put</div>
+                <div class="step-badge badge-pending" id="badge-step0">PENDING</div>
+            </div>
+            <div class="step-node" id="node-step1">
+                <div class="step-icon">📥</div>
+                <div class="step-title">1. Load Temp</div>
+                <div class="step-program">SMELDRCCFGLINT</div>
+                <div class="step-badge badge-pending" id="badge-step1">PENDING</div>
+            </div>
+            <div class="step-node" id="node-step2">
+                <div class="step-icon">🔍</div>
+                <div class="step-title">2. Validate</div>
+                <div class="step-program">SMECHKCCFGLINT</div>
+                <div class="step-badge badge-pending" id="badge-step2">PENDING</div>
+            </div>
+            <div class="step-node" id="node-step2_5">
+                <div class="step-icon">📝</div>
+                <div class="step-title">2.5 GL Posting</div>
+                <div class="step-program">Daily Post Check</div>
+                <div class="step-badge badge-pending" id="badge-step2_5">PENDING</div>
+            </div>
+            <div class="step-node" id="node-step3">
+                <div class="step-icon">📊</div>
+                <div class="step-title">3. Reconcile</div>
+                <div class="step-program">SMESUMGLINT</div>
+                <div class="step-badge badge-pending" id="badge-step3">PENDING</div>
+            </div>
+            <div class="step-node" id="node-step4">
+                <div class="step-icon">🔄</div>
+                <div class="step-title">4. Consolidate</div>
+                <div class="step-program">SMECONSOL...</div>
+                <div class="step-badge badge-pending" id="badge-step4">PENDING</div>
+            </div>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <!-- Pause Alert Box (For Step 2.5 Manual Post) -->
+        <div class="pause-box" id="pause-box">
+            <h3>⏸️ ขั้นตอนที่ 2.5: หยุดรอการตรวจสอบและการ Post รายการบัญชี</h3>
+            <p>ระบบได้นำส่งข้อมูลเข้า GL เรียบร้อยแล้ว (สถานะ Unposted) กรุณาเข้าไปที่หน้าจอ <b>Journals > Enter</b> เพื่อตรวจยอดเงินและกดปุ่ม <b>Post</b> ให้สถานะเป็น <b>Posted (P)</b> จากนั้นกดปุ่มด้านล่างเพื่อดำเนินการต่อ</p>
+            <button class="btn btn-warning" style="width: auto; padding: 8px 24px;" onclick="confirmPost()">
+                ✅ ยืนยัน: ฉันกด Post ใน GL เรียบร้อยแล้ว ให้รันต่อทันที
+            </button>
+        </div>
+
+        <div class="grid-2">
+            <!-- Left Panel: Configuration -->
+            <div class="card">
+                <div class="card-title">⚙️ ตั้งค่าการประมวลผล (Configuration)</div>
+                
+                <div class="form-group">
+                    <label>โฟลเดอร์ไฟล์ (เช่น C:\Users\Username\Downloads\GL):</label>
+                    <div class="row">
+                        <input type="text" id="input-folder" onkeydown="if(event.key==='Enter') loadFiles()">
+                        <button class="btn btn-small" onclick="browseFolder()" title="เลือกโฟลเดอร์">📁</button>
+                        <button class="btn btn-small" onclick="loadFiles()" title="โหลดรายการไฟล์">🔄</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>เลือกไฟล์ที่จะอัปโหลด (ติ๊กได้หลายไฟล์ รันตามลำดับวันที่):</label>
+                    <div class="file-list" id="file-list"><div class="file-row">-- กำลังโหลดรายการไฟล์... --</div></div>
+                    <div class="list-tools">
+                        <button class="btn btn-small" onclick="selectPending()" title="ยังไม่นำเข้า + งวดเปิด + batch ไม่ซ้ำในโฟลเดอร์">☑ เลือกที่ยังไม่นำเข้า</button>
+                        <button class="btn btn-small" onclick="setChecked(d => d.imported_count > 0)" title="ไว้ใช้กับ Post after: ไล่เช็ค Post ไฟล์ที่นำเข้าแล้ว">☑ ที่นำเข้าแล้ว</button>
+                        <button class="btn btn-small" onclick="setChecked(() => false)">☐ ล้าง</button>
+                        <span id="selected-count">เลือก 0 ไฟล์</span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div>
+                        <label>เริ่มที่ step:</label>
+                        <select id="select-start"></select>
+                    </div>
+                    <div>
+                        <label>ทำถึง step:</label>
+                        <select id="select-stop"></select>
+                    </div>
+                </div>
+
+                <!-- Toggle: Post after -->
+                <div class="switch-container">
+                    <div class="switch-desc">
+                        <div class="switch-title">Post after (ไล่เช็ค Post ทีหลัง)</div>
+                        <div class="switch-sub">นำเข้าทุกไฟล์ก่อน (ไม่รอ Post) แล้ววนเช็คสถานะ Post ทุก 30 วินาที — batch ไหน Post แล้วทำ Step 4 ต่อจนครบ</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-post-after">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Toggle: Skip Step 2.5 -->
+                <div class="switch-container">
+                    <div class="switch-desc">
+                        <div class="switch-title">ข้าม Step 2.5 (GL Posting)</div>
+                        <div class="switch-sub">เปิด: ไม่รอ Post batch ไปทำ Step ถัดไปเลย</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-skip-post">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Toggle: Auto Post -->
+                <div class="switch-container">
+                    <div class="switch-desc">
+                        <div class="switch-title">Auto-Post Daily Journal ทันที</div>
+                        <div class="switch-sub">เปิด: ระบบรอให้โพสต์อัตโนมัติ<br>ปิด: หยุดรอเพื่อให้ตรวจทานก่อนโพสต์</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-auto-post" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Toggle: Auto-clean Temp -->
+                <div class="switch-container">
+                    <div class="switch-desc">
+                        <div class="switch-title">Auto-clean Temp Table ก่อนเริ่ม</div>
+                        <div class="switch-sub">ล้างข้อมูลตกค้างเก่าในตารางพัก ป้องกัน Error สะสม</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-clean-temp" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Toggle: Force re-import -->
+                <div class="switch-container">
+                    <div class="switch-desc">
+                        <div class="switch-title">อนุญาตนำเข้าซ้ำ</div>
+                        <div class="switch-sub">ปิด: ถ้า batch ของไฟล์นี้มีใน GL แล้ว ระบบจะหยุดไม่รัน Step 1-2</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-force">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
+                    <button class="btn btn-primary" id="btn-start" onclick="startAutomation()">
+                        🚀 เริ่มรันอัตโนมัติ (Start Automation)
+                    </button>
+                    <button class="btn btn-danger" id="btn-stop" onclick="stopAutomation()" disabled>
+                        ⏹️ หยุดการทำงาน (Stop)
+                    </button>
+                    <button class="btn" style="background: #334155; color: #94a3b8;" id="btn-reset" onclick="resetWorkflow()">
+                        🔄 ล้างสถานะหน้าจอ (Reset)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Monitoring & Logs -->
+            <div class="card">
+                <div class="card-title">🖥️ สถานะการทำงานจริง (Real-time Status)</div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">ขั้นตอนปัจจุบัน</div>
+                        <div class="metric-val" id="metric-step" style="color: var(--primary);">IDLE</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Journal Batch ใน GL</div>
+                        <div class="metric-val" id="metric-batch" style="font-size: 13px; font-family: monospace;">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">จำนวนแถวที่นำเข้า</div>
+                        <div class="metric-val" id="metric-rows">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">ยอด Entered DR (บาท)</div>
+                        <div class="metric-val" id="metric-dr" style="color: var(--success); font-size: 15px;">-</div>
+                    </div>
+                </div>
+
+                <div class="terminal-header">
+                    <span>LIVE EXECUTION LOGS</span>
+                    <span id="log-count">0 messages</span>
+                </div>
+                <div class="terminal" id="terminal">
+                    <div>[READY] เลือกรอบวันที่แล้วกดปุ่ม "เริ่มรันอัตโนมัติ" เพื่อเริ่มต้นกระบวนการ...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Connection Settings -->
+    <div class="modal-backdrop" id="connect-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>🔌 ตั้งค่าการเชื่อมต่อ (Connection Setup)</h2>
+                <button class="modal-close" onclick="closeConnectModal()">&times;</button>
+            </div>
+
+            <div class="modal-tabs">
+                <button class="tab-btn active" id="tab-btn-db" onclick="switchTab('tab-db')">💾 ฐานข้อมูล DB</button>
+                <button class="tab-btn" id="tab-btn-sftp" onclick="switchTab('tab-sftp')">📤 เซิร์ฟเวอร์ SFTP</button>
+                <button class="tab-btn" id="tab-btn-ebs" onclick="switchTab('tab-ebs')">👤 ผู้ใช้ EBS Concurrent</button>
+                <button class="tab-btn" id="tab-btn-app" onclick="switchTab('tab-app')">⚙️ ตั้งค่าทั่วไป</button>
+            </div>
+
+            <!-- Tab 1: Database -->
+            <div class="tab-content active" id="tab-db">
+                <div class="form-group row">
+                    <div style="flex: 2;">
+                        <label>DB Host / IP:</label>
+                        <input type="text" id="cfg-db-host" placeholder="192.168.225.118 หรือ fidevdb12.smebank.co.th">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Port:</label>
+                        <input type="number" id="cfg-db-port" placeholder="1541">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div>
+                        <label>Service Name:</label>
+                        <input type="text" id="cfg-db-service" placeholder="ebs_TEST">
+                    </div>
+                    <div>
+                        <label>TNS Alias (ทางเลือก):</label>
+                        <input type="text" id="cfg-db-tns" placeholder="SME_TEST_8020">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div>
+                        <label>DB Username:</label>
+                        <input type="text" id="cfg-db-user" placeholder="apps">
+                    </div>
+                    <div>
+                        <label>DB Password:</label>
+                        <input type="password" id="cfg-db-pass" placeholder="กรอกรหัสผ่าน DB (apps)">
+                    </div>
+                </div>
+                <button class="btn btn-small" onclick="testDbConnection()" style="margin-top: 4px;">
+                    🧪 ทดสอบเชื่อมต่อฐานข้อมูล (Test DB)
+                </button>
+                <div class="alert-box" id="alert-db"></div>
+            </div>
+
+            <!-- Tab 2: SFTP -->
+            <div class="tab-content" id="tab-sftp">
+                <div class="form-group row">
+                    <div style="flex: 2;">
+                        <label>SFTP Host / IP (Linux Application Server):</label>
+                        <input type="text" id="cfg-sftp-host" placeholder="192.168.225.117">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Port:</label>
+                        <input type="number" id="cfg-sftp-port" placeholder="22">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div>
+                        <label>SFTP Username:</label>
+                        <input type="text" id="cfg-sftp-user" placeholder="appltest">
+                    </div>
+                    <div>
+                        <label>SFTP Password:</label>
+                        <input type="password" id="cfg-sftp-pass" placeholder="กรอกรหัสผ่าน SFTP">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Remote Upload Path (ปลายทางใน Linux):</label>
+                    <input type="text" id="cfg-sftp-path" placeholder="/data/TEST/apps/IMPORT/GL/DATA">
+                </div>
+                <button class="btn btn-small" onclick="testSftpConnection()" style="margin-top: 4px;">
+                    🧪 ทดสอบเชื่อมต่อ SFTP (Test SFTP)
+                </button>
+                <div class="alert-box" id="alert-sftp"></div>
+            </div>
+
+            <!-- Tab 3: EBS User -->
+            <div class="tab-content" id="tab-ebs">
+                <div class="form-group row">
+                    <div>
+                        <label>EBS Username (สำหรับรัน Concurrent):</label>
+                        <input type="text" id="cfg-ebs-user" placeholder="MERCURY">
+                    </div>
+                    <div>
+                        <label>EBS Password (ทางเลือก):</label>
+                        <input type="password" id="cfg-ebs-pass" placeholder="รหัสผ่าน EBS (ถ้าต้องการตรวจ)">
+                    </div>
+                </div>
+                <button class="btn btn-small" onclick="testEbsUser()" style="margin-top: 4px;">
+                    🔍 ตรวจสอบสิทธิ์ผู้ใช้ EBS (Verify User)
+                </button>
+                <div class="alert-box" id="alert-ebs"></div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label>สิทธิ์การใช้งาน (Responsibility):</label>
+                    <select id="cfg-ebs-resp"></select>
+                </div>
+                <div class="form-group row">
+                    <div>
+                        <label>User ID:</label>
+                        <input type="number" id="cfg-ebs-uid" placeholder="7484">
+                    </div>
+                    <div>
+                        <label>Resp ID:</label>
+                        <input type="number" id="cfg-ebs-rid" placeholder="20434">
+                    </div>
+                    <div>
+                        <label>Appl ID:</label>
+                        <input type="number" id="cfg-ebs-aid" placeholder="101">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div>
+                        <label>Daily Ledger ID:</label>
+                        <input type="number" id="cfg-ebs-ledger" placeholder="1001">
+                    </div>
+                    <div>
+                        <label>COA ID:</label>
+                        <input type="number" id="cfg-ebs-coa" placeholder="50268">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: General Settings -->
+            <div class="tab-content" id="tab-app">
+                <div class="form-group">
+                    <label>โฟลเดอร์ไฟล์ข้อมูล GL เริ่มต้นในเครื่อง:</label>
+                    <input type="text" id="cfg-app-folder" placeholder="C:\Users\Username\Downloads\GL">
+                </div>
+                <div class="form-group">
+                    <label>SQL*Plus Path (ใช้เป็น Fallback หากต้องการ):</label>
+                    <input type="text" id="cfg-app-sqlplus" placeholder="D:\DevSuiteHome_1\bin\sqlplus.exe">
+                </div>
+                <div class="switch-container">
+                    <div class="switch-desc">
+                        <div class="switch-title">เปิดใช้งาน SQL*Plus Fallback</div>
+                        <div class="switch-sub">ค่าเริ่มต้นใช้ python-oracledb Direct Thin Driver (ไม่ต้องลง Client)</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="cfg-app-fallback">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-small" onclick="closeConnectModal()" style="background: #334155; color: #cbd5e1;">
+                    ยกเลิก
+                </button>
+                <button class="btn btn-primary" onclick="saveConnectionSettings()" style="width: auto; padding: 8px 24px;">
+                    💾 บันทึกและเชื่อมต่อ (Save & Connect)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pollInterval = null;
+        let wasRunning = false;
+        let files = {};
+        let cachedConfig = null;
+
+        const STEP_OPTS = [
+            ['step0', '0. SFTP Upload'], ['step1', '1. Load Temp'], ['step2', '2. Validate + Journal Import'],
+            ['step2_5', '2.5 GL Posting'], ['step3', '3. Reconcile'], ['step4', '4. Consolidate'],
+        ];
+        for (const id of ['select-start', 'select-stop']) {
+            document.getElementById(id).innerHTML = STEP_OPTS.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+        }
+        document.getElementById('select-stop').value = 'step4';
+
+        const folderInput = document.getElementById('input-folder');
+        try { folderInput.value = localStorage.getItem('gl_folder') || ''; } catch (e) {}
+
+        // Initial load
+        initConnection();
+        loadFiles();
+        updateStatus();
+
+        function initConnection() {
+            fetch('/api/config')
+                .then(r => r.json())
+                .then(cfg => {
+                    cachedConfig = cfg;
+                    populateModalFields(cfg);
+                    checkLiveConnection();
+                });
+        }
+
+        function checkLiveConnection() {
+            fetch('/api/connection_status')
+                .then(r => r.json())
+                .then(res => {
+                    const dbBadge = document.getElementById('badge-db');
+                    const textDb = document.getElementById('text-db');
+                    if (res.db.ok) {
+                        dbBadge.className = 'badge-env clickable';
+                        textDb.innerText = 'DB: ' + (res.db.info || 'Connected');
+                    } else {
+                        dbBadge.className = 'badge-env clickable disconnected';
+                        textDb.innerText = 'DB: Disconnected';
+                    }
+
+                    const sftpBadge = document.getElementById('badge-sftp');
+                    const textSftp = document.getElementById('text-sftp');
+                    if (res.sftp.ok) {
+                        sftpBadge.className = 'badge-env clickable';
+                        textSftp.innerText = 'SFTP: ' + (res.sftp.info || 'Connected');
+                    } else {
+                        sftpBadge.className = 'badge-env clickable disconnected';
+                        textSftp.innerText = 'SFTP: Disconnected';
+                    }
+
+                    const textEbs = document.getElementById('text-ebs');
+                    if (res.ebs && res.ebs.user_name) {
+                        textEbs.innerText = `EBS: ${res.ebs.user_name} (ID: ${res.ebs.user_id})`;
+                    }
+                })
+                .catch(() => {});
+        }
+
+        function populateModalFields(cfg) {
+            if (!cfg) return;
+            const db = cfg.db || {};
+            const sftp = cfg.sftp || {};
+            const ebs = cfg.ebs || {};
+            const app = cfg.app || {};
+
+            document.getElementById('cfg-db-host').value = db.host || '';
+            document.getElementById('cfg-db-port').value = db.port || 1541;
+            document.getElementById('cfg-db-service').value = db.service_name || '';
+            document.getElementById('cfg-db-tns').value = db.tns_name || '';
+            document.getElementById('cfg-db-user').value = db.user || 'apps';
+            if (db.has_password) {
+                document.getElementById('cfg-db-pass').placeholder = '•••••••• (มีรหัสเดิมบันทึกอยู่แล้ว)';
+            }
+
+            document.getElementById('cfg-sftp-host').value = sftp.host || '';
+            document.getElementById('cfg-sftp-port').value = sftp.port || 22;
+            document.getElementById('cfg-sftp-user').value = sftp.user || 'appltest';
+            document.getElementById('cfg-sftp-path').value = sftp.remote_path || '/data/TEST/apps/IMPORT/GL/DATA';
+            if (sftp.has_password) {
+                document.getElementById('cfg-sftp-pass').placeholder = '•••••••• (มีรหัสเดิมบันทึกอยู่แล้ว)';
+            }
+
+            document.getElementById('cfg-ebs-user').value = ebs.user_name || 'MERCURY';
+            document.getElementById('cfg-ebs-uid').value = ebs.user_id || 7484;
+            document.getElementById('cfg-ebs-rid').value = ebs.resp_id || 20434;
+            document.getElementById('cfg-ebs-aid').value = ebs.appl_id || 101;
+            document.getElementById('cfg-ebs-ledger').value = ebs.ledger_id || 1001;
+            document.getElementById('cfg-ebs-coa').value = ebs.coa_id || 50268;
+
+            document.getElementById('cfg-app-folder').value = app.local_gl_path || '';
+            document.getElementById('cfg-app-sqlplus').value = app.sqlplus_path || '';
+            document.getElementById('cfg-app-fallback').checked = !!app.use_sqlplus_fallback;
+
+            if (!folderInput.value && app.local_gl_path) {
+                folderInput.value = app.local_gl_path;
+            }
+        }
+
+        function openConnectModal(tabId) {
+            document.getElementById('connect-modal').className = 'modal-backdrop show';
+            if (tabId) switchTab(tabId);
+        }
+
+        function closeConnectModal() {
+            document.getElementById('connect-modal').className = 'modal-backdrop';
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const targetBtn = document.getElementById(tabId.replace('tab-', 'tab-btn-'));
+            const targetTab = document.getElementById(tabId);
+            if (targetBtn) targetBtn.classList.add('active');
+            if (targetTab) targetTab.classList.add('active');
+        }
+
+        function showAlert(elemId, type, msg) {
+            const el = document.getElementById(elemId);
+            el.className = `alert-box alert-${type} show`;
+            el.innerText = msg;
+        }
+
+        function testDbConnection() {
+            const payload = {
+                host: document.getElementById('cfg-db-host').value.trim(),
+                port: document.getElementById('cfg-db-port').value.trim(),
+                service_name: document.getElementById('cfg-db-service').value.trim(),
+                tns_name: document.getElementById('cfg-db-tns').value.trim(),
+                user: document.getElementById('cfg-db-user').value.trim(),
+                password: document.getElementById('cfg-db-pass').value
+            };
+            showAlert('alert-db', 'info', '⏳ กำลังทดสอบเชื่อมต่อฐานข้อมูล Oracle DB...');
+            fetch('/api/test/db', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(res => {
+                showAlert('alert-db', res.success ? 'success' : 'error', res.message);
+                checkLiveConnection();
+            })
+            .catch(err => {
+                showAlert('alert-db', 'error', 'เกิดข้อผิดพลาดในการเรียก API: ' + err);
+            });
+        }
+
+        function testSftpConnection() {
+            const payload = {
+                host: document.getElementById('cfg-sftp-host').value.trim(),
+                port: document.getElementById('cfg-sftp-port').value.trim(),
+                user: document.getElementById('cfg-sftp-user').value.trim(),
+                password: document.getElementById('cfg-sftp-pass').value,
+                remote_path: document.getElementById('cfg-sftp-path').value.trim()
+            };
+            showAlert('alert-sftp', 'info', '⏳ กำลังทดสอบเชื่อมต่อ SFTP...');
+            fetch('/api/test/sftp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(res => {
+                showAlert('alert-sftp', res.success ? 'success' : 'error', res.message);
+                checkLiveConnection();
+            })
+            .catch(err => {
+                showAlert('alert-sftp', 'error', 'เกิดข้อผิดพลาดในการเรียก API: ' + err);
+            });
+        }
+
+        function testEbsUser() {
+            const payload = {
+                user_name: document.getElementById('cfg-ebs-user').value.trim(),
+                password: document.getElementById('cfg-ebs-pass').value
+            };
+            showAlert('alert-ebs', 'info', '⏳ กำลังตรวจสอบผู้ใช้งานในฐานข้อมูล EBS...');
+            fetch('/api/test/ebs_user', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(res => {
+                showAlert('alert-ebs', res.success ? 'success' : 'error', res.message);
+                if (res.success && res.data) {
+                    const d = res.data;
+                    document.getElementById('cfg-ebs-uid').value = d.user_id;
+                    const sel = document.getElementById('cfg-ebs-resp');
+                    sel.innerHTML = '';
+                    if (d.responsibilities && d.responsibilities.length > 0) {
+                        d.responsibilities.forEach(r => {
+                            const opt = document.createElement('option');
+                            opt.value = `${r.resp_id}|${r.appl_id}`;
+                            opt.innerText = `${r.resp_name} (ID: ${r.resp_id})`;
+                            sel.appendChild(opt);
+                        });
+                        sel.onchange = () => {
+                            const [rid, aid] = sel.value.split('|');
+                            document.getElementById('cfg-ebs-rid').value = rid;
+                            document.getElementById('cfg-ebs-aid').value = aid;
+                        };
+                        const [firstRid, firstAid] = sel.value.split('|');
+                        document.getElementById('cfg-ebs-rid').value = firstRid;
+                        document.getElementById('cfg-ebs-aid').value = firstAid;
+                    }
+                }
+            })
+            .catch(err => {
+                showAlert('alert-ebs', 'error', 'เกิดข้อผิดพลาดในการตรวจสอบ: ' + err);
+            });
+        }
+
+        function saveConnectionSettings() {
+            const cfg = {
+                db: {
+                    host: document.getElementById('cfg-db-host').value.trim(),
+                    port: parseInt(document.getElementById('cfg-db-port').value.trim()) || 1541,
+                    service_name: document.getElementById('cfg-db-service').value.trim(),
+                    tns_name: document.getElementById('cfg-db-tns').value.trim(),
+                    user: document.getElementById('cfg-db-user').value.trim(),
+                    password: document.getElementById('cfg-db-pass').value
+                },
+                sftp: {
+                    host: document.getElementById('cfg-sftp-host').value.trim(),
+                    port: parseInt(document.getElementById('cfg-sftp-port').value.trim()) || 22,
+                    user: document.getElementById('cfg-sftp-user').value.trim(),
+                    password: document.getElementById('cfg-sftp-pass').value,
+                    remote_path: document.getElementById('cfg-sftp-path').value.trim()
+                },
+                ebs: {
+                    user_name: document.getElementById('cfg-ebs-user').value.trim(),
+                    user_id: parseInt(document.getElementById('cfg-ebs-uid').value) || 7484,
+                    resp_id: parseInt(document.getElementById('cfg-ebs-rid').value) || 20434,
+                    appl_id: parseInt(document.getElementById('cfg-ebs-aid').value) || 101,
+                    ledger_id: parseInt(document.getElementById('cfg-ebs-ledger').value) || 1001,
+                    coa_id: parseInt(document.getElementById('cfg-ebs-coa').value) || 50268
+                },
+                app: {
+                    local_gl_path: document.getElementById('cfg-app-folder').value.trim(),
+                    sqlplus_path: document.getElementById('cfg-app-sqlplus').value.trim(),
+                    use_sqlplus_fallback: document.getElementById('cfg-app-fallback').checked
+                }
+            };
+
+            fetch('/api/config', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(cfg)
+            })
+            .then(r => r.json())
+            .then(res => {
+                alert('✅ บันทึกการตั้งค่าการเชื่อมต่อเรียบร้อยแล้ว');
+                closeConnectModal();
+                checkLiveConnection();
+                if (cfg.app.local_gl_path) {
+                    folderInput.value = cfg.app.local_gl_path;
+                    loadFiles();
+                }
+            })
+            .catch(err => {
+                alert('เกิดข้อผิดพลาดในการบันทึก: ' + err);
+            });
+        }
+
+        function loadFiles() {
+            const folder = folderInput.value.trim();
+            const list = document.getElementById('file-list');
+            list.innerHTML = '<div class="file-row">-- กำลังโหลด + ตรวจใน GL... --</div>';
+            fetch('/api/dates?folder=' + encodeURIComponent(folder))
+                .then(r => r.json())
+                .then(data => {
+                    files = {};
+                    if (data.folder) {
+                        folderInput.value = data.folder;
+                        try { localStorage.setItem('gl_folder', data.folder); } catch (e) {}
+                    }
+                    if (!data.dates || data.dates.length === 0) {
+                        list.innerHTML = `<div class="file-row">${data.message || 'ไม่พบไฟล์ *TFRS9*.TXT ในโฟลเดอร์นี้ (รวมโฟลเดอร์ย่อย)'}</div>`;
+                        updateCount();
+                        return;
+                    }
+                    const count = {};
+                    data.dates.forEach(d => count[d.batch_name] = (count[d.batch_name] || 0) + 1);
+                    list.innerHTML = '';
+                    data.dates.forEach(d => {
+                        files[d.file_path] = d;
+                        d.ambiguous = count[d.batch_name] > 1;
+                        const notes = [];
+                        if (!d.eff_date) notes.push('<span class="warn">อ่าน header ไม่ได้</span>');
+                        else {
+                            notes.push(`${d.batch_name} · ${d.eff_date}`);
+                            if (d.imported_count) notes.push(`<span class="warn">✅ นำเข้าแล้ว ${d.imported_count} batch</span>`);
+                            if (d.interface_rows) notes.push(`<span class="warn">⏳ อยู่ใน GL_INTERFACE ${d.interface_rows.toLocaleString()} แถว (Journal Import กำลังรัน/ค้าง)</span>`);
+                            if (!d.period_open) notes.push(`<span class="warn">🔒 งวดปิด (${d.period_status})</span>`);
+                            if (d.ambiguous) notes.push('<span class="warn">batch ชื่อซ้ำในโฟลเดอร์</span>');
+                        }
+                        const row = document.createElement('label');
+                        row.className = 'file-row' + (d.eff_date ? '' : ' disabled');
+                        row.innerHTML = `<input type="checkbox" ${d.eff_date ? '' : 'disabled'}>
+                            <div><div>${d.imported_count ? '✅' : d.interface_rows ? '⏳' : d.period_open ? '⬜' : '🔒'} ${d.folder} · ${d.name} (${d.size_kb.toLocaleString()} KB)</div>
+                            <div class="sub">${notes.join(' · ')}</div></div>`;
+                        const cb = row.querySelector('input');
+                        cb.value = d.file_path;
+                        cb.onchange = updateCount;
+                        list.appendChild(row);
+                    });
+                    selectPending();
+                });
+        }
+
+        function checkboxes() {
+            return [...document.querySelectorAll('#file-list input[type=checkbox]:not(:disabled)')];
+        }
+
+        function setChecked(pred) {
+            checkboxes().forEach(cb => cb.checked = pred(files[cb.value]));
+            updateCount();
+        }
+
+        function selectPending() {
+            setChecked(d => !d.imported_count && !d.interface_rows && d.period_open && !d.ambiguous);
+        }
+
+        function updateCount() {
+            document.getElementById('selected-count').innerText = `เลือก ${checkboxes().filter(cb => cb.checked).length} ไฟล์`;
+        }
+
+        function browseFolder() {
+            fetch('/api/browse', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({folder: folderInput.value.trim()})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.folder) {
+                    folderInput.value = data.folder;
+                    loadFiles();
+                }
+            });
+        }
+
+        function startAutomation() {
+            const picked = checkboxes().filter(cb => cb.checked).map(cb => files[cb.value]);
+            if (picked.length === 0) {
+                alert('กรุณาติ๊กเลือกไฟล์ก่อนครับ');
+                return;
+            }
+            if (picked.length > 1) {
+                const msg = `จะส่ง ${picked.length} ไฟล์ตามลำดับ:\n` + picked.map(d => `• ${d.folder} · ${d.name}`).join('\n') +
+                    '\n\nไฟล์ที่ซ้ำ/งวดปิดจะถูกข้ามอัตโนมัติ | หยุดทันทีถ้าไฟล์ไหน error';
+                if (!confirm(msg)) return;
+            }
+            const filePaths = picked.map(d => d.file_path);
+            document.getElementById('btn-start').disabled = true;
+
+            fetch('/api/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    file_paths: filePaths,
+                    start_from: document.getElementById('select-start').value,
+                    stop_after: document.getElementById('select-stop').value,
+                    auto_post: document.getElementById('chk-auto-post').checked,
+                    auto_clean_temp: document.getElementById('chk-clean-temp').checked,
+                    force: document.getElementById('chk-force').checked,
+                    skip_post: document.getElementById('chk-skip-post').checked,
+                    post_after: document.getElementById('chk-post-after').checked
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'started') {
+                    if (pollInterval) clearInterval(pollInterval);
+                    pollInterval = setInterval(updateStatus, 1500);
+                } else {
+                    alert('Error: ' + data.message);
+                    document.getElementById('btn-start').disabled = false;
+                    if (data.message && data.message.includes('ตั้งค่าการเชื่อมต่อ')) {
+                        openConnectModal();
+                    }
+                }
+            });
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('progress-bar').style.width = data.progress_percent + '%';
+                    document.getElementById('metric-step').innerText = data.current_step.toUpperCase() + (data.queue ? ` (${data.queue})` : '');
+
+                    for (const [stepKey, st] of Object.entries(data.step_statuses)) {
+                        const node = document.getElementById('node-' + stepKey);
+                        const badge = document.getElementById('badge-' + stepKey);
+                        if (node && badge) {
+                            node.className = 'step-node ' + st;
+                            badge.className = 'step-badge badge-' + st;
+                            badge.innerText = st.toUpperCase();
+                        }
+                    }
+
+                    const pBox = document.getElementById('pause-box');
+                    if (data.waiting_post_confirm) {
+                        pBox.className = 'pause-box show';
+                    } else {
+                        pBox.className = 'pause-box';
+                    }
+
+                    if (data.batch_info) {
+                        document.getElementById('metric-batch').innerText = data.batch_info.name || '-';
+                    }
+                    if (data.reconcile_info) {
+                        document.getElementById('metric-rows').innerText = Number(data.reconcile_info.rows).toLocaleString() + ' แถว';
+                        document.getElementById('metric-dr').innerText = data.reconcile_info.dr;
+                    }
+
+                    const term = document.getElementById('terminal');
+                    if (data.logs && data.logs.length > 0) {
+                        term.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
+                        term.scrollTop = term.scrollHeight;
+                        document.getElementById('log-count').innerText = `${data.logs.length} messages`;
+                    }
+
+                    const btnStop = document.getElementById('btn-stop');
+                    btnStop.disabled = !data.is_running || data.stop_requested;
+                    btnStop.innerText = data.is_running && data.stop_requested ? '⏳ กำลังหยุด... (รอ request ที่รันอยู่เสร็จ)' : '⏹️ หยุดการทำงาน (Stop)';
+
+                    if (data.is_running || data.waiting_post_confirm) {
+                        document.getElementById('btn-start').disabled = true;
+                        if (!pollInterval) pollInterval = setInterval(updateStatus, 1500);
+                        wasRunning = true;
+                    } else {
+                        document.getElementById('btn-start').disabled = false;
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        if (wasRunning) {
+                            wasRunning = false;
+                            loadFiles();
+                        }
+                    }
+                });
+        }
+
+        function stopAutomation() {
+            if (!confirm('หยุดการทำงาน?\n\nถ้ามี concurrent request รันอยู่ใน EBS ระบบจะรอให้เสร็จก่อนแล้วค่อยหยุด (ไม่ตัดกลางคัน)\nไฟล์ที่เหลือในคิวจะไม่ถูกรัน')) return;
+            document.getElementById('btn-stop').disabled = true;
+            fetch('/api/stop', {method: 'POST'}).then(updateStatus);
+        }
+
+        function confirmPost() {
+            fetch('/api/confirm_post', {method: 'POST'})
+                .then(r => r.json())
+                .then(() => {
+                    document.getElementById('pause-box').className = 'pause-box';
+                });
+        }
+
+        function resetWorkflow() {
+            fetch('/api/reset', {method: 'POST'})
+                .then(() => {
+                    location.reload();
+                });
+        }
+    </script>
+</body>
+</html>

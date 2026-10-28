@@ -1,0 +1,25 @@
+# Credentials & Local Configuration
+config.json
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.bak
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# IDE & Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store

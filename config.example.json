@@ -1,0 +1,30 @@
+{
+  "db": {
+    "host": "192.168.225.118",
+    "port": 1541,
+    "service_name": "ebs_TEST",
+    "user": "apps",
+    "password": "",
+    "tns_name": "SME_TEST_8020"
+  },
+  "sftp": {
+    "host": "192.168.225.117",
+    "port": 22,
+    "user": "appltest",
+    "password": "",
+    "remote_path": "/data/TEST/apps/IMPORT/GL/DATA"
+  },
+  "ebs": {
+    "user_name": "MERCURY",
+    "user_id": 7484,
+    "resp_id": 20434,
+    "appl_id": 101,
+    "ledger_id": 1001,
+    "coa_id": 50268
+  },
+  "app": {
+    "local_gl_path": "",
+    "sqlplus_path": "D:\\DevSuiteHome_1\\bin\\sqlplus.exe",
+    "use_sqlplus_fallback": false
+  }
+}
