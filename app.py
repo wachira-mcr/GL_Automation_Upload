@@ -501,13 +501,14 @@ def start_automation():
     if state["is_running"]:
         return jsonify({"status": "error", "message": "ระบบกำลังทำงานอยู่แล้ว"}), 400
 
-    # Validate connection credentials
-    db_cfg = engine.CONFIG.get("db", {})
-    sftp_cfg = engine.CONFIG.get("sftp", {})
-    if not db_cfg.get("user") or not db_cfg.get("password") or not (db_cfg.get("host") or db_cfg.get("tns_name")):
-        return jsonify({"status": "error", "message": "กรุณาตั้งค่าการเชื่อมต่อ DB ให้ครบถ้วนก่อนเริ่ม (คลิก 'ตั้งค่าการเชื่อมต่อ')"}), 400
-    if not sftp_cfg.get("host") or not sftp_cfg.get("user") or not sftp_cfg.get("password"):
-        return jsonify({"status": "error", "message": "กรุณาตั้งค่าการเชื่อมต่อ SFTP ให้ครบถ้วนก่อนเริ่ม (คลิก 'ตั้งค่าการเชื่อมต่อ')"}), 400
+    # Validate connection credentials only on machines without sqlplus / default setup
+    if not engine.is_sqlplus_available():
+        db_cfg = engine.CONFIG.get("db", {})
+        sftp_cfg = engine.CONFIG.get("sftp", {})
+        if not db_cfg.get("user") or not (db_cfg.get("host") or db_cfg.get("tns_name")):
+            return jsonify({"status": "error", "message": "กรุณาตั้งค่าการเชื่อมต่อ DB ให้ครบถ้วนก่อนเริ่ม (คลิก 'ตั้งค่าการเชื่อมต่อ')"}), 400
+        if not sftp_cfg.get("host") or not sftp_cfg.get("user"):
+            return jsonify({"status": "error", "message": "กรุณาตั้งค่าการเชื่อมต่อ SFTP ให้ครบถ้วนก่อนเริ่ม (คลิก 'ตั้งค่าการเชื่อมต่อ')"}), 400
 
     data = request.json or {}
     file_paths = data.get("file_paths") or [data.get("file_path")]

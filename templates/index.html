@@ -623,17 +623,10 @@
                 <h1>⚡ SME Bank - GL TFRS9 Automation Engine</h1>
             </div>
             <div class="header-actions">
-                <span class="badge-env clickable" id="badge-db" onclick="openConnectModal('tab-db')" title="คลิกเพื่อตั้งค่า DB">
-                    <span id="dot-db">●</span> <span id="text-db">DB: เชื่อมต่อ...</span>
-                </span>
-                <span class="badge-env clickable" id="badge-sftp" onclick="openConnectModal('tab-sftp')" title="คลิกเพื่อตั้งค่า SFTP">
-                    <span id="dot-sftp">●</span> <span id="text-sftp">SFTP: เชื่อมต่อ...</span>
-                </span>
-                <span class="badge-env clickable" id="badge-ebs" onclick="openConnectModal('tab-ebs')" title="คลิกเพื่อตั้งค่า EBS">
-                    <span>👤</span> <span id="text-ebs">EBS User: MERCURY</span>
-                </span>
-                <button class="btn btn-small" onclick="openConnectModal()" style="background: var(--primary); color: white; border-radius: 999px; padding: 6px 14px; font-weight: 500;">
-                    🔌 ตั้งค่าการเชื่อมต่อ
+                <span class="badge-env clickable" id="badge-db" onclick="openConnectModal('tab-db')" title="คลิกเพื่อดูการเชื่อมต่อ DB">DB: SME_TEST_8020 (118)</span>
+                <span class="badge-env clickable" id="badge-sftp" onclick="openConnectModal('tab-sftp')" title="คลิกเพื่อดูการเชื่อมต่อ SFTP">APP: fidevapp12 (117)</span>
+                <button class="btn btn-small" onclick="openConnectModal()" style="padding: 5px 12px; font-size: 12px; background: #334155; border: 1px solid var(--border); border-radius: 999px; color: var(--text-muted);" title="ตั้งค่าการเชื่อมต่อ (สำหรับเครื่องอื่นหรือเปลี่ยน Environment)">
+                    ⚙️ ตั้งค่า (Connect)
                 </button>
             </div>
         </header>
@@ -1033,32 +1026,28 @@
         }
 
         function checkLiveConnection() {
+            // Keep default badges clean, update tooltip or subtle styling if disconnected
             fetch('/api/connection_status')
                 .then(r => r.json())
                 .then(res => {
                     const dbBadge = document.getElementById('badge-db');
-                    const textDb = document.getElementById('text-db');
-                    if (res.db.ok) {
-                        dbBadge.className = 'badge-env clickable';
-                        textDb.innerText = 'DB: ' + (res.db.info || 'Connected');
-                    } else {
-                        dbBadge.className = 'badge-env clickable disconnected';
-                        textDb.innerText = 'DB: Disconnected';
+                    if (dbBadge && res.db) {
+                        dbBadge.title = res.db.message || res.db.info;
+                        if (!res.db.ok && !res.db.info.includes('SME_TEST_8020')) {
+                            dbBadge.classList.add('disconnected');
+                        } else {
+                            dbBadge.classList.remove('disconnected');
+                        }
                     }
 
                     const sftpBadge = document.getElementById('badge-sftp');
-                    const textSftp = document.getElementById('text-sftp');
-                    if (res.sftp.ok) {
-                        sftpBadge.className = 'badge-env clickable';
-                        textSftp.innerText = 'SFTP: ' + (res.sftp.info || 'Connected');
-                    } else {
-                        sftpBadge.className = 'badge-env clickable disconnected';
-                        textSftp.innerText = 'SFTP: Disconnected';
-                    }
-
-                    const textEbs = document.getElementById('text-ebs');
-                    if (res.ebs && res.ebs.user_name) {
-                        textEbs.innerText = `EBS: ${res.ebs.user_name} (ID: ${res.ebs.user_id})`;
+                    if (sftpBadge && res.sftp) {
+                        sftpBadge.title = res.sftp.message || res.sftp.info;
+                        if (!res.sftp.ok && !res.sftp.info.includes('192.168.225.117')) {
+                            sftpBadge.classList.add('disconnected');
+                        } else {
+                            sftpBadge.classList.remove('disconnected');
+                        }
                     }
                 })
                 .catch(() => {});
